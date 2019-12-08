@@ -1,0 +1,3 @@
+C:\Users\dell G5 5587\source\repos\MCC Mod Version Manager\DarkUI\bin\Debug\DarkUI.dll
+C:\Users\dell G5 5587\source\repos\MCC Mod Version Manager\DarkUI\bin\Debug\DarkUI.pdb
+C:\Users\dell G5 5587\source\repos\MCC Mod Version Manager\DarkUI\bin\Debug\DarkUI.dll.config

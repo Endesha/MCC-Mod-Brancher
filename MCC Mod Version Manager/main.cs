@@ -13,23 +13,26 @@ using System.Windows.Forms;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
+using DarkUI.Forms;
+using DarkUI.Controls;
+using System.Reflection;
 
 namespace MCC_Mod_Version_Manager
 {
-
-    public partial class main : Form
+    public partial class main : DarkForm
     {
         public main()
         {
             InitializeComponent();
+            version.Text += Application.ProductVersion;
         }
+
         // Global vars
         string home = Directory.GetCurrentDirectory() + "\\";
         ArrayList _backups = new ArrayList();
         bool treeLoading = false;
 
         // start 3rd pty
-
         // bits for realising symlinks
         [DllImport("kernel32.dll", EntryPoint = "CreateFileW", CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern SafeFileHandle CreateFile(string lpFileName, int dwDesiredAccess, int dwShareMode, IntPtr securityAttributes, int dwCreationDisposition, int dwFlagsAndAttributes, IntPtr hTemplateFile);
@@ -66,6 +69,31 @@ namespace MCC_Mod_Version_Manager
             return result.ToString();
         }
 
+        // resolve dlls from /bin
+        private Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            // Ignore missing resources
+            if (args.Name.Contains(".resources"))
+                return null;
+
+            // check for assemblies already loaded
+            Assembly assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.FullName == args.Name);
+            if (assembly != null)
+                return assembly;
+
+            string filename = args.Name.Split(',')[0] + ".dll".ToLower();
+
+            string asmFile = Path.Combine(@".\", "bin", filename);
+            try
+            {
+                return System.Reflection.Assembly.LoadFrom(asmFile);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+        
         // no dbl click on treeview
         public class NoClickTree : TreeView
         {
@@ -82,7 +110,7 @@ namespace MCC_Mod_Version_Manager
         {
             public static string ShowDialog(string text, string caption)
             {
-                Form prompt = new Form()
+                Form prompt = new DarkForm
                 {
                     Width = 400,
                     Height = 150,
@@ -90,9 +118,9 @@ namespace MCC_Mod_Version_Manager
                     Text = caption,
                     StartPosition = FormStartPosition.CenterScreen
                 };
-                Label textLabel = new Label() { Left = 50, Top = 15, Height = 50,Width = 300, Text = text };
-                TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 300 };
-                Button confirmation = new Button() { Text = "Ok", Left = 250, Width = 100, Top = 75, DialogResult = DialogResult.OK };
+                DarkLabel textLabel = new DarkLabel() { Left = 50, Top = 15, Height = 50, Width = 300, Text = text };
+                DarkTextBox textBox = new DarkTextBox() { Left = 50, Top = 50, Width = 300 };
+                DarkButton confirmation = new DarkButton() { Text = "Ok", Left = 250, Width = 100, Top = 80, DialogResult = DialogResult.OK };
                 confirmation.Click += (sender, e) => { prompt.Close(); };
                 prompt.Controls.Add(textBox);
                 prompt.Controls.Add(confirmation);
@@ -111,7 +139,7 @@ namespace MCC_Mod_Version_Manager
         {
             return value.ToString("yyyy.MM.dd_HH.mm.ss");
         }
-        
+
         // kinda convoluted way of doing it, could just make program admin from start
         // but started this way as the "explore branch" side shouldn't need admin (i think? ;/)
         private void cmd(string cmd = "dir", bool elevate = false, bool wait = false)
@@ -119,7 +147,7 @@ namespace MCC_Mod_Version_Manager
             Process p = new Process();
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.FileName = @"powershell.exe";
-            p.StartInfo.Arguments = "-Command \"Start-Process cmd -ArgumentList '/c cd /d " + home 
+            p.StartInfo.Arguments = "-Command \"Start-Process cmd -ArgumentList '/c cd /d " + home
                                                               + ".. && " + cmd + "'" + (elevate ? " -verb runas" : "") + " -WindowStyle hidden -Wait\"";
             p.StartInfo.WorkingDirectory = home + "../";
             p.StartInfo.Verb = "runas";
@@ -134,13 +162,13 @@ namespace MCC_Mod_Version_Manager
             if (Directory.Exists(home + (md ? "../" : "") + dir))
             {
                 res.Text = "✓";
-                res.ForeColor = Color.DarkGreen;
+                res.ForeColor = Color.LawnGreen;
                 if (!md) _backups.Add(dir);
             }
             else
             {
                 res.Text = "✗";
-                res.ForeColor = Color.DarkRed;
+                res.ForeColor = Color.OrangeRed;
             }
         }
         private void check_directories()
@@ -159,7 +187,7 @@ namespace MCC_Mod_Version_Manager
         private void check_mod_backups()
         {
             _backups.Clear();
-            if (tabControl1.SelectedIndex==0) status.Text = "Checking mod backups";
+            if (tabControl1.SelectedIndex == 0) status.Text = "Checking mod backups";
             cgd("originals/data", dir_mod_orig_data, false);
             cgd("originals/MCC", dir_mod_orig_mcc, false);
             cgd("originals/haloce", dir_mod_orig_ce, false);
@@ -210,7 +238,7 @@ namespace MCC_Mod_Version_Manager
                     treeView1.Nodes[nc].Nodes.Add(br.Replace(home + "branches/" + dir + "/", ""));
                     int snc = treeView1.Nodes[nc].Nodes.Count - 1;
                     treeView1.Nodes[nc].Nodes[snc].ContextMenuStrip = branch_ctx;
-                    if (real.Contains(dir) && treeView1.Nodes[nc].Checked==false) treeView1.Nodes[nc].Nodes[snc].Checked = true;
+                    if (real.Contains(dir) && treeView1.Nodes[nc].Checked == false) treeView1.Nodes[nc].Nodes[snc].Checked = true;
                 }
                 treeView1.ExpandAll();
                 if (tabControl1.SelectedIndex == 1) status.Text = "Idle";
@@ -225,7 +253,7 @@ namespace MCC_Mod_Version_Manager
                             + " && xcopy \\\"originals/" + source + "\\\" \\\"branches/" + source + "/" + newname + "\\\" /T /E /I /Y" + logfile
                       );
 
-            DirectoryInfo objDirectoryInfo = new DirectoryInfo(home + "originals\\"+source);
+            DirectoryInfo objDirectoryInfo = new DirectoryInfo(home + "originals\\" + source);
             FileInfo[] files = objDirectoryInfo.GetFiles("*.*", SearchOption.AllDirectories);
 
             string batchfile = "syslink_" + ts(DateTime.Now) + ".bat";
@@ -233,7 +261,7 @@ namespace MCC_Mod_Version_Manager
             string cmds = "@echo off\ncd /d \"" + home + "\"\necho Starting symlink process" + logfile + "\n";
             foreach (var file in files)
             {
-                string sf = file.FullName.Replace(home + @"originals\"+source, "");
+                string sf = file.FullName.Replace(home + @"originals\" + source, "");
                 cmds += "mklink \"" + home + "branches\\" + source + "\\" + newname + sf + "\" \"" + home + "originals\\" + source + sf + "\"" + logfile + "\n";
             }
             cmds += "DEL \"%~f0\"";
@@ -320,6 +348,36 @@ namespace MCC_Mod_Version_Manager
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             Process.Start("https://github.com/Endesha/MCC-Mod-Version-Manager");
+        }
+
+        private void openInExplorerToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ContextMenuStrip cms = (ContextMenuStrip)((ToolStripMenuItem)sender).Owner;
+            TreeView treeView = (TreeView)cms.SourceControl;
+            TreeNode node = treeView.GetNodeAt(treeView.PointToClient(cms.Location));
+
+            Process.Start(home + "branches\\" + node.Parent.Text + "\\" + node.Text);
+        }
+
+        private void openInExplorerToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ContextMenuStrip cms = (ContextMenuStrip)((ToolStripMenuItem)sender).Owner;
+            TreeView treeView = (TreeView)cms.SourceControl;
+            TreeNode node = treeView.GetNodeAt(treeView.PointToClient(cms.Location));
+
+            Process.Start(home + "originals\\" + node.Text);
+        }
+
+        private void backup_MouseEnter(object sender, EventArgs e)
+        {
+            string dir = ((Label)sender).Text;
+            if (!Directory.Exists(home + "originals/" + dir) && Directory.Exists(home + "../" + dir))
+                ((Label)sender).Cursor = Cursors.Hand;
+        }
+
+        private void backup_MouseLeave(object sender, EventArgs e)
+        {
+            ((Label)sender).Cursor = Cursors.Default;
         }
     }
 }

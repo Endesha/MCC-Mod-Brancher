@@ -23,27 +23,21 @@ namespace MCC_Mod_Version_Manager.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string assemblyPath {
             get {
                 return ((string)(this["assemblyPath"]));
             }
-            set {
-                this["assemblyPath"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string zetaPath {
             get {
                 return ((string)(this["zetaPath"]));
-            }
-            set {
-                this["zetaPath"] = value;
             }
         }
     }

@@ -74,6 +74,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UI\VisualStudioTabControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="main.resx">
       <DependentUpon>main.cs</DependentUpon>
     </EmbeddedResource>
@@ -103,11 +106,88 @@
     <None Include="Resources\version.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\grip.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tick.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\scrollbar_arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\scrollbar_arrow_clicked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\scrollbar_arrow_hot.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\scrollbar_arrow_standard.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\info.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\warning.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\node_closed_empty.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\node_closed_full.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\node_open.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\node_open_empty.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\active-inactive-close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\arrow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\close-selected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\inactive-close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\inactive-close-selected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tw_close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tw_close_selected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tw_active_close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\tw_active_close_selected.png" />
+  </ItemGroup>
+  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DarkUI\DarkUI.csproj">
+      <Project>{243492f0-268c-40ab-ba10-12599af78337}</Project>
+      <Name>DarkUI</Name>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
