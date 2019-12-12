@@ -1,3 +1,28 @@
+Sorry folks, just realised the game can't handle symlink files, can deal with symlink folders no problem.
+Could make a version which copies files etc, but might as well use explorer for that.
+
+
+To uninstall:
+
+In game root directory: delete folders with links (that you backed-up)
+go into mods/originals/ copy the directories,
+go to game root and paste
+
+delete mods
+
+done :)
+
+
+sorry for wasting your time ;/
+
+
+
+
+
+
+
+
+
 # MCC Mod Brancher
 ### About:
 
