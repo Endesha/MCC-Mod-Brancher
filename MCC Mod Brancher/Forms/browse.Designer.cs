@@ -280,7 +280,6 @@
             this.tempBackupToolStripMenuItem.Name = "tempBackupToolStripMenuItem";
             this.tempBackupToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.tempBackupToolStripMenuItem.Text = "&Backups";
-            this.tempBackupToolStripMenuItem.Click += new System.EventHandler(this.tempBackupToolStripMenuItem_Click);
             // 
             // restoreFromBackupToolStripMenuItem
             // 

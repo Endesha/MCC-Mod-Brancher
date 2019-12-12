@@ -332,7 +332,7 @@ namespace MCC_Mod_Brancher
                 
                 if ((!noSel && files.SelectedNode.Checked) || noSel) tempBackupToolStripMenuItem.Visible = false;
                 if ((!noSel && files.SelectedNode.Checked) || noSel) restoreFromOriginalToolStripMenuItem.Visible = false;
-                if (noSel || (!noSel && files.SelectedNode.ImageIndex == 0)) editInTextEditorToolStripMenuItem.Visible = false;
+                if (noSel || (!noSel && files.SelectedNode.ImageIndex != 1)) editInTextEditorToolStripMenuItem.Visible = false;
 
                 restoreFromBackupToolStripMenuItem.Visible = false;
                 clearToolStripMenuItem.Visible = false;
@@ -536,21 +536,7 @@ namespace MCC_Mod_Brancher
             str.StartInfo.Arguments = "/select,\"" + modpath(tree.SelectedNode) + "\\" + file + "\"";
             str.Start();
         }
-        private void openInToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
 
-        private void openInZetaToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void notepadToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void tempBackupToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-        }
         void restoreMenu_Click(object sender, EventArgs e)
         {
             status.Text = "Restoring file";
