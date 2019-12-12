@@ -2,6 +2,7 @@
 ### About:
 
 ![](https://i.imgur.com/K7cRA0O.png)![enter image description here](https://i.imgur.com/CjpDql1.png)![enter image description here](https://i.imgur.com/iJAasiL.png)
+
 MCC Mod Brancher is a tool which allows you to create multiple "branches" of the game folders for the [Master Chief Collection](https://store.steampowered.com/app/976730/Halo_The_Master_Chief_Collection/). After creating a branch, you can easily swap which branch is "currently active".
 
 By branching the whole game folder, it allows you to easily have "complete"  versions of the game, without having to constantly swap individual files.
