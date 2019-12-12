@@ -56,14 +56,14 @@ namespace MCC_Mod_Brancher
         {
             if (!Directory.Exists(path) && !File.Exists(path))
             {
-                throw new IOException("Path not found");
+                Console.WriteLine(new IOException("Path not found"));
             }
 
             SafeFileHandle directoryHandle = CreateFile(path, 0, 2, IntPtr.Zero, CREATION_DISPOSITION_OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, IntPtr.Zero); //Handle file / folder
 
             if (directoryHandle.IsInvalid)
             {
-                throw new Win32Exception(Marshal.GetLastWin32Error());
+                Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()));
             }
 
             StringBuilder result = new StringBuilder(512);
@@ -242,17 +242,19 @@ namespace MCC_Mod_Brancher
 
                 if (!Directory.Exists(home + "branches\\" + dir)) Directory.CreateDirectory(home + "branches\\" + dir);
 
-                int nc = treeView1.Nodes.Count - 1;
+                TreeNode root = treeView1.Nodes[treeView1.Nodes.Count-1];
                 string real = GetRealPath(home + "../" + dir);
-                if (real.Contains("originals")) treeView1.Nodes[nc].Checked = true;
 
-                treeView1.Nodes[nc].ContextMenuStrip = branch_root_ctx;
+                if (real.Contains("originals\\")) root.Checked = true;
+
+                root.ContextMenuStrip = branch_root_ctx;
                 foreach (string br in Directory.GetDirectories(home + "branches/" + dir + "/"))
                 {
-                    treeView1.Nodes[nc].Nodes.Add(br.Replace(home + "branches/" + dir + "/", ""));
-                    int snc = treeView1.Nodes[nc].Nodes.Count - 1;
-                    treeView1.Nodes[nc].Nodes[snc].ContextMenuStrip = branch_ctx;
-                    if (real.Contains(dir) && treeView1.Nodes[nc].Checked == false) treeView1.Nodes[nc].Nodes[snc].Checked = true;
+                    root.Nodes.Add(br.Replace(home + "branches/" + dir + "/", ""));
+                    TreeNode subNode = root.Nodes[root.Nodes.Count - 1];
+                    subNode.ContextMenuStrip = branch_ctx;
+
+                    if (real.Split('\\').Last() == subNode.Text) subNode.Checked = true;
                 }
                 treeView1.ExpandAll();
             }
@@ -443,15 +445,28 @@ namespace MCC_Mod_Brancher
                 ContextMenuStrip cms = (ContextMenuStrip)((ToolStripMenuItem)sender).Owner;
                 TreeView treeView = (TreeView)cms.SourceControl;
                 TreeNode node = treeView.GetNodeAt(treeView.PointToClient(cms.Location));
+                TreeNode parent = node.Parent;
+                
                 string source = node.Text;
-                string root = node.Parent.Text;
+                string root = parent.Text;
 
                 string logfile = debug ? " >>mods/logs/" + ts(DateTime.Now) + ".txt" : "";
                 cmd("echo Deleting " + source + logfile
                                 + " && rmdir mods\\branches\\"+ root + "\\" + source  +" /Q /S"+ logfile
                           , false, true);
+
                 node.Remove();
+
+                if (node.Checked == true)
+                {
+                    treeLoading = true;
+                    node.Checked = false;
+                    parent.Checked = true;
+                    treeLoading = false;
+                }
                 status.Text = "";
+
+                //deleteTimeout.Enabled = true;
             }
         }
 
@@ -476,11 +491,6 @@ namespace MCC_Mod_Brancher
             if (me.Name.EndsWith("1")) assemblyPath.Text = path;
             if (me.Name.EndsWith("2")) zetaPath.Text = path;
             if (me.Name.EndsWith("3")) notepadPath.Text = path;
-        }
-
-        private void tabPage3_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void assemblyPath_TextChanged(object sender, EventArgs e)
@@ -535,6 +545,13 @@ namespace MCC_Mod_Brancher
             if (formLoaded == false) return;
             Properties.Settings.Default.dragMove = set_move.Checked;
             Properties.Settings.Default.Save();
+        }
+
+        private void deleteTimeout_Tick(object sender, EventArgs e)
+        {
+            //loadBranches();
+            //treecurrent.Checked = true;
+            deleteTimeout.Enabled = false;
         }
     }
 }
