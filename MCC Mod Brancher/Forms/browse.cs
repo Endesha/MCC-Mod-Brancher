@@ -66,14 +66,14 @@ namespace MCC_Mod_Brancher
         public browse()
         {
             InitializeComponent();
+            // source = "haloreach";
+            // branch = "test1";
             icons_files.Images.Add(Properties.Resources.zip);
             icons_files.Images.Add(Properties.Resources.doc);
             icons_files.Images.Add(Properties.Resources.prop);
             icons_tree.Images.Add(Properties.Resources.folder);
             icons_tree.Images.Add(Properties.Resources.folder_open);
             tree.SelectedImageIndex = 1;
-            source = "haloreach";
-            branch = "test1";
             if (Directory.Exists(home + "logs")) debug = true;
         }
 
@@ -227,6 +227,19 @@ namespace MCC_Mod_Brancher
         }
         List<_tmpFile> loadTmpFiles()
         {
+            if (!Directory.Exists(home + "branches\\temp")) Directory.CreateDirectory(home + "\\branches\\temp");
+            if (!Directory.Exists(home + "branches\\temp\\" + source)) Directory.CreateDirectory(home + "branches\\temp\\" + source);
+            if (!Directory.Exists(home + "branches\\temp\\" + source + "\\" + branch))
+            {
+                status.Text = "Preparing first load...";
+                Directory.CreateDirectory(home + "branches\\temp\\" + source + "\\" + branch);
+
+                string logfile = debug ? " >>logs/" + ts(DateTime.Now) + ".txt" : "";
+                cmd("cd mods && echo Clone folder structure " + branch + logfile
+                 + " && xcopy \\\"branches\\" + source + "\\" + branch + "\\\" \\\"branches\\temp\\" + source + "\\" + branch + "\\\" /T /E /I /Y" + logfile
+                , false, true);
+                status.Text = "";
+            }
             _tmpfiles.Clear();
             DirectoryInfo d = new DirectoryInfo(home + "branches\\temp\\" + source + "\\" + branch);
             FileInfo[] Files = d.GetFiles("*.*", SearchOption.AllDirectories);
@@ -300,20 +313,32 @@ namespace MCC_Mod_Brancher
             filterTimeout.Stop();
             filterTimeout.Enabled = true;
         }
-        // Handle context menu, to be able to GetNodeAt(X,Y)
+
         private void files_MouseUp(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
                 files.SelectedNode = files.GetNodeAt(e.X, e.Y);
-                if (!File.Exists(Properties.Settings.Default.assemblyPath) || files.SelectedNode == null) openInToolStripMenuItem.Visible = false;
-                if (!File.Exists(Properties.Settings.Default.zetaPath) || files.SelectedNode == null) openInZetaToolStripMenuItem.Visible = false;
-                if ((files.SelectedNode != null && files.SelectedNode.Checked) || files.SelectedNode == null) tempBackupToolStripMenuItem.Visible = false;
-                restoreFromBackupToolStripMenuItem.Visible = false;
-                clearBackupsToolStripMenuItem.Visible = false;
-                if (files.SelectedNode != null)
-                {
+                bool noSel = files.SelectedNode == null;
 
+                if ((!File.Exists(Properties.Settings.Default.assemblyPath) || noSel ||
+                            (!noSel && files.SelectedNode.ImageIndex != 2))) editInAssemblyToolStripMenuItem.Visible = false;
+
+                if ((!File.Exists(Properties.Settings.Default.zetaPath) || noSel ||
+                            (!noSel && files.SelectedNode.ImageIndex != 2))) editInZetaToolStripMenuItem.Visible = false;
+
+                //if (( noSel || (!noSel && files.SelectedNode.ImageIndex != 1))) editInTextEditorToolStripMenuItem.Visible = false;
+
+                
+                if ((!noSel && files.SelectedNode.Checked) || noSel) tempBackupToolStripMenuItem.Visible = false;
+                if ((!noSel && files.SelectedNode.Checked) || noSel) restoreFromOriginalToolStripMenuItem.Visible = false;
+                if (noSel || (!noSel && files.SelectedNode.ImageIndex == 0)) editInTextEditorToolStripMenuItem.Visible = false;
+
+                restoreFromBackupToolStripMenuItem.Visible = false;
+                clearToolStripMenuItem.Visible = false;
+
+                if (!noSel)
+                {
                     string path = modpath(tree.SelectedNode).Replace(home + "branches\\", "");
 
                     var match = _tmpfiles.Where(x => x.path == path && x.Name == files.SelectedNode.Text).Reverse();
@@ -321,7 +346,7 @@ namespace MCC_Mod_Brancher
                     {
                         restoreFromBackupToolStripMenuItem.DropDownItems.Clear();
                         restoreFromBackupToolStripMenuItem.Visible = true;
-                        clearBackupsToolStripMenuItem.Visible = true;
+                        clearToolStripMenuItem.Visible = true;
                         foreach (var f in match)
                         {
                             ToolStripMenuItem itm = new ToolStripMenuItem();
@@ -331,17 +356,18 @@ namespace MCC_Mod_Brancher
                             restoreFromBackupToolStripMenuItem.DropDownItems.Add(itm);
                         }
                     }
-                    //Console.WriteLine(path);
                 }
                 ctx.Show(files, e.Location);
             }
         }
         private void ctx_Closed(object sender, ToolStripDropDownClosedEventArgs e)
         {
-            openInToolStripMenuItem.Visible = true;
-            openInZetaToolStripMenuItem.Visible = true;
+            editInAssemblyToolStripMenuItem.Visible = true;
+            editInZetaToolStripMenuItem.Visible = true;
             tempBackupToolStripMenuItem.Visible = true;
+            editInTextEditorToolStripMenuItem.Visible = true;
             restoreFromBackupToolStripMenuItem.Visible = true;
+            restoreFromOriginalToolStripMenuItem.Visible = true;
         }
 
         void cloneFromOriginals(TreeNode node)
@@ -512,66 +538,18 @@ namespace MCC_Mod_Brancher
         }
         private void openInToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TreeNode node = files.SelectedNode;
-
-            if (node.Checked == true) // if is symlink
-            {
-                status.Text = "Converting symlink to real file first...";
-                cloneFromOriginals(node);
-                status.Text = "";
-            }
-
-            Process str = new Process();
-            str.StartInfo.FileName = Properties.Settings.Default.assemblyPath;
-            str.StartInfo.Arguments = "open \"" + modpath(tree.SelectedNode) + "\\" + node.Text + "\"";
-            str.Start();
         }
 
         private void openInZetaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TreeNode node = files.SelectedNode;
+        }
 
-            if (node.Checked == true) // if is symlink
-            {
-                status.Text = "Converting symlink to real file first...";
-                cloneFromOriginals(node);
-                status.Text = "";
-            }
-
-            Process str = new Process();
-            str.StartInfo.FileName = Properties.Settings.Default.zetaPath;
-            str.StartInfo.Arguments = " \"" + modpath(tree.SelectedNode) + "\\" + node.Text + "\"";
-            str.Start();
+        private void notepadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
         }
 
         private void tempBackupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            status.Text = "Making backup";
-            string src = modpath(tree.SelectedNode) + "\\" + files.SelectedNode.Text;
-            string tar = home + "branches\\temp\\" + src.Replace(home + "branches\\", "") + "." + ts(DateTime.Now);
-
-            string logfile = debug ? ">>\"logs/" + ts(DateTime.Now) + ".txt\"" : "";
-
-            if (!Directory.Exists(home + "branches\\temp")) Directory.CreateDirectory(home + "\\branches\\temp");
-            if (!Directory.Exists(home + "branches\\temp\\" + source)) Directory.CreateDirectory(home + "branches\\temp\\" + source);
-            if (!Directory.Exists(home + "branches\\temp\\" + source + "\\" + branch))
-            {
-                status.Text = "Cloning structure";
-                Directory.CreateDirectory(home + "branches\\temp\\" + source + "\\" + branch);
-
-                cmd("cd mods && echo Clone folder structure " + branch + logfile
-                 + " && xcopy \\\"branches\\" + source + "\\" + branch + "\\\" \\\"branches\\temp\\" + source + "\\" + branch + "\\\" /T /E /I /Y" + logfile
-                , false, true);
-            }
-            status.Text = "Backing up file";
-            string cmds = "cd mods && echo Starting backup operation" + logfile
-                                    + " && echo.>\\\"" + tar + "\\\""
-                                    + " && xcopy  \\\"" + src + "\\\"  \\\"" + tar + "\\\"  /H /Y" + logfile;
-
-            cmd(cmds, false, true);
-            loadTmpFiles();
-            status.Text = "Backup made!";
-            hoverTimeout.Enabled = true;
         }
         void restoreMenu_Click(object sender, EventArgs e)
         {
@@ -588,19 +566,6 @@ namespace MCC_Mod_Brancher
             status.Text = "File restored";
             hoverTimeout.Enabled = true;
 
-        }
-
-        private void clearBackupsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            status.Text = "Deleting files";
-            string logfile = debug ? ">>\"mods/logs/" + ts(DateTime.Now) + ".txt\"" : "";
-            string tar = (modpath(tree.SelectedNode) + "\\" + files.SelectedNode.Text).Replace("branches\\" + source, "branches\\temp\\" + source) + ".";
-            foreach (ToolStripMenuItem x in restoreFromBackupToolStripMenuItem.DropDownItems)
-                cmd("echo Deleting backup " + x.Text + logfile + " && DEL /Q  \\\"" + tar + x.Text + "\\\"" + logfile, false, true);
-
-            loadTmpFiles();
-            status.Text = "Files cleared";
-            hoverTimeout.Enabled = true;
         }
         public void searchTree(TreeNode tre, string search)
         {
@@ -619,6 +584,113 @@ namespace MCC_Mod_Brancher
             if (search.Text == "search..." || search.Text == "") return;
             var path = files.SelectedNode.ToolTipText.Split('>')[2];
             searchTree(tree.Nodes[0], path);
+        }
+
+        private void createToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            status.Text = "Making backup";
+            string src = modpath(tree.SelectedNode) + "\\" + files.SelectedNode.Text;
+            string tar = home + "branches\\temp\\" + src.Replace(home + "branches\\", "") + "." + ts(DateTime.Now);
+
+            string logfile = debug ? ">>\"logs/" + ts(DateTime.Now) + ".txt\"" : "";
+
+            status.Text = "Backing up file";
+            string cmds = "cd mods && echo Starting backup operation" + logfile
+                                    + " && echo.>\\\"" + tar + "\\\""
+                                    + " && xcopy  \\\"" + src + "\\\"  \\\"" + tar + "\\\"  /H /Y" + logfile;
+
+            cmd(cmds, false, true);
+            loadTmpFiles();
+            status.Text = "Backup made!";
+            hoverTimeout.Enabled = true;
+        }
+
+        private void clearToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            status.Text = "Deleting files";
+            string logfile = debug ? ">>\"mods/logs/" + ts(DateTime.Now) + ".txt\"" : "";
+            string tar = (modpath(tree.SelectedNode) + "\\" + files.SelectedNode.Text).Replace("branches\\" + source, "branches\\temp\\" + source) + ".";
+            foreach (ToolStripMenuItem x in restoreFromBackupToolStripMenuItem.DropDownItems)
+                cmd("echo Deleting backup " + x.Text + logfile + " && DEL /Q  \\\"" + tar + x.Text + "\\\"" + logfile, false, true);
+
+            loadTmpFiles();
+            status.Text = "Files cleared";
+            hoverTimeout.Enabled = true;
+        }
+
+        private void restoreFromOriginalToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            status.Text = "Restoring file";
+            string logfile = debug ? ">>\"logs/" + ts(DateTime.Now) + ".txt\"" : "";
+            string tar = modpath(tree.SelectedNode) + "\\" + files.SelectedNode.Text;
+            string src = tar.Replace("branches\\" + source + "\\" + branch, "originals\\" + source);
+            Console.WriteLine(tar);
+            Console.WriteLine(src);
+            /*
+
+            string cmds = "cd mods && echo Restoring from backup" + logfile
+                                    + " && move /Y  \\\"" + src + "\\\"  \\\"" + tar + "\\\"" + logfile;
+
+            cmd(cmds, false, true);
+            loadTmpFiles();
+            status.Text = "File restored";
+            hoverTimeout.Enabled = true;*/
+        }
+
+        private void editInNotepadToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void editInAssemblyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = files.SelectedNode;
+
+            if (node.Checked == true) // if is symlink
+            {
+                status.Text = "Converting symlink to real file first...";
+                cloneFromOriginals(node);
+                status.Text = "";
+            }
+
+            Process str = new Process();
+            str.StartInfo.FileName = Properties.Settings.Default.assemblyPath;
+            str.StartInfo.Arguments = "open \"" + modpath(tree.SelectedNode) + "\\" + node.Text + "\"";
+            str.Start();
+        }
+
+        private void editInZetaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = files.SelectedNode;
+
+            if (node.Checked == true) // if is symlink
+            {
+                status.Text = "Converting symlink to real file first...";
+                cloneFromOriginals(node);
+                status.Text = "";
+            }
+
+            Process str = new Process();
+            str.StartInfo.FileName = Properties.Settings.Default.zetaPath;
+            str.StartInfo.Arguments = " \"" + modpath(tree.SelectedNode) + "\\" + node.Text + "\"";
+            str.Start();
+        }
+
+        private void editInTextEditorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = files.SelectedNode;
+
+            if (node.Checked == true) // if is symlink
+            {
+                status.Text = "Converting symlink to real file first...";
+                cloneFromOriginals(node);
+                status.Text = "";
+            }
+
+            Process str = new Process();
+            str.StartInfo.FileName = Properties.Settings.Default.notepadPath;
+            str.StartInfo.Arguments = " \"" + modpath(tree.SelectedNode) + "\\" + node.Text + "\"";
+            str.Start();
         }
     }
 }

@@ -34,7 +34,9 @@
             this.tblMain = new System.Windows.Forms.TableLayoutPanel();
             this.search = new DarkUI.Controls.DarkTextBox();
             this.tree = new System.Windows.Forms.TreeView();
+            this.icons_tree = new System.Windows.Forms.ImageList(this.components);
             this.files = new System.Windows.Forms.TreeView();
+            this.icons_files = new System.Windows.Forms.ImageList(this.components);
             this.menu = new System.Windows.Forms.TableLayoutPanel();
             this.filter = new DarkUI.Controls.DarkTextBox();
             this.filter_mod = new DarkUI.Controls.DarkRadioButton();
@@ -42,15 +44,16 @@
             this.filter_alp = new DarkUI.Controls.DarkRadioButton();
             this.filterTimeout = new System.Windows.Forms.Timer(this.components);
             this.ctx = new DarkUI.Controls.DarkContextMenu();
-            this.openInToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openInZetaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.browseInExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tempBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restoreFromBackupToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.clearBackupsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hoverTimeout = new System.Windows.Forms.Timer(this.components);
-            this.icons_files = new System.Windows.Forms.ImageList(this.components);
-            this.icons_tree = new System.Windows.Forms.ImageList(this.components);
+            this.createToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.restoreFromOriginalToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editInAssemblyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editInZetaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editInTextEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip.SuspendLayout();
             this.tblMain.SuspendLayout();
             this.menu.SuspendLayout();
@@ -132,6 +135,12 @@
             this.tree.TabIndex = 7;
             this.tree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tree_AfterSelect);
             // 
+            // icons_tree
+            // 
+            this.icons_tree.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.icons_tree.ImageSize = new System.Drawing.Size(16, 16);
+            this.icons_tree.TransparentColor = System.Drawing.Color.Transparent;
+            // 
             // files
             // 
             this.files.AllowDrop = true;
@@ -152,6 +161,12 @@
             this.files.DragEnter += new System.Windows.Forms.DragEventHandler(this.files_DragEnter);
             this.files.MouseMove += new System.Windows.Forms.MouseEventHandler(this.files_MouseMove);
             this.files.MouseUp += new System.Windows.Forms.MouseEventHandler(this.files_MouseUp);
+            // 
+            // icons_files
+            // 
+            this.icons_files.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
+            this.icons_files.ImageSize = new System.Drawing.Size(16, 16);
+            this.icons_files.TransparentColor = System.Drawing.Color.Transparent;
             // 
             // menu
             // 
@@ -237,31 +252,16 @@
             this.ctx.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.ctx.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctx.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openInToolStripMenuItem,
-            this.openInZetaToolStripMenuItem,
+            this.editInAssemblyToolStripMenuItem,
+            this.editInZetaToolStripMenuItem,
+            this.editInTextEditorToolStripMenuItem,
             this.browseInExplorerToolStripMenuItem,
             this.tempBackupToolStripMenuItem,
             this.restoreFromBackupToolStripMenuItem,
-            this.clearBackupsToolStripMenuItem});
+            this.restoreFromOriginalToolStripMenuItem});
             this.ctx.Name = "ctx";
-            this.ctx.Size = new System.Drawing.Size(185, 136);
+            this.ctx.Size = new System.Drawing.Size(185, 180);
             this.ctx.Closed += new System.Windows.Forms.ToolStripDropDownClosedEventHandler(this.ctx_Closed);
-            // 
-            // openInToolStripMenuItem
-            // 
-            this.openInToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.openInToolStripMenuItem.Name = "openInToolStripMenuItem";
-            this.openInToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.openInToolStripMenuItem.Text = "Open in &Assembly";
-            this.openInToolStripMenuItem.Click += new System.EventHandler(this.openInToolStripMenuItem_Click);
-            // 
-            // openInZetaToolStripMenuItem
-            // 
-            this.openInZetaToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.openInZetaToolStripMenuItem.Name = "openInZetaToolStripMenuItem";
-            this.openInZetaToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.openInZetaToolStripMenuItem.Text = "Open in &Zeta";
-            this.openInZetaToolStripMenuItem.Click += new System.EventHandler(this.openInZetaToolStripMenuItem_Click);
             // 
             // browseInExplorerToolStripMenuItem
             // 
@@ -273,10 +273,13 @@
             // 
             // tempBackupToolStripMenuItem
             // 
+            this.tempBackupToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createToolStripMenuItem,
+            this.clearToolStripMenuItem});
             this.tempBackupToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
             this.tempBackupToolStripMenuItem.Name = "tempBackupToolStripMenuItem";
-            this.tempBackupToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.tempBackupToolStripMenuItem.Text = "Create Temp &Backup";
+            this.tempBackupToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.tempBackupToolStripMenuItem.Text = "&Backups";
             this.tempBackupToolStripMenuItem.Click += new System.EventHandler(this.tempBackupToolStripMenuItem_Click);
             // 
             // restoreFromBackupToolStripMenuItem
@@ -286,30 +289,58 @@
             this.restoreFromBackupToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
             this.restoreFromBackupToolStripMenuItem.Text = "&Restore from Backup";
             // 
-            // clearBackupsToolStripMenuItem
-            // 
-            this.clearBackupsToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
-            this.clearBackupsToolStripMenuItem.Name = "clearBackupsToolStripMenuItem";
-            this.clearBackupsToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
-            this.clearBackupsToolStripMenuItem.Text = "&Clear Backups";
-            this.clearBackupsToolStripMenuItem.Click += new System.EventHandler(this.clearBackupsToolStripMenuItem_Click);
-            // 
             // hoverTimeout
             // 
             this.hoverTimeout.Interval = 2000;
             this.hoverTimeout.Tick += new System.EventHandler(this.hoverTimeout_Tick);
             // 
-            // icons_files
+            // createToolStripMenuItem
             // 
-            this.icons_files.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.icons_files.ImageSize = new System.Drawing.Size(16, 16);
-            this.icons_files.TransparentColor = System.Drawing.Color.Transparent;
+            this.createToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.createToolStripMenuItem.Name = "createToolStripMenuItem";
+            this.createToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.createToolStripMenuItem.Text = "&Create";
+            this.createToolStripMenuItem.Click += new System.EventHandler(this.createToolStripMenuItem_Click);
             // 
-            // icons_tree
+            // clearToolStripMenuItem
             // 
-            this.icons_tree.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
-            this.icons_tree.ImageSize = new System.Drawing.Size(16, 16);
-            this.icons_tree.TransparentColor = System.Drawing.Color.Transparent;
+            this.clearToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.clearToolStripMenuItem.Name = "clearToolStripMenuItem";
+            this.clearToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.clearToolStripMenuItem.Text = "C&lear";
+            this.clearToolStripMenuItem.Click += new System.EventHandler(this.clearToolStripMenuItem_Click);
+            // 
+            // restoreFromOriginalToolStripMenuItem
+            // 
+            this.restoreFromOriginalToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.restoreFromOriginalToolStripMenuItem.Name = "restoreFromOriginalToolStripMenuItem";
+            this.restoreFromOriginalToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.restoreFromOriginalToolStripMenuItem.Text = "Restore to &Original";
+            this.restoreFromOriginalToolStripMenuItem.Click += new System.EventHandler(this.restoreFromOriginalToolStripMenuItem_Click);
+            // 
+            // editInAssemblyToolStripMenuItem
+            // 
+            this.editInAssemblyToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.editInAssemblyToolStripMenuItem.Name = "editInAssemblyToolStripMenuItem";
+            this.editInAssemblyToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.editInAssemblyToolStripMenuItem.Text = "Edit in Assembly";
+            this.editInAssemblyToolStripMenuItem.Click += new System.EventHandler(this.editInAssemblyToolStripMenuItem_Click);
+            // 
+            // editInZetaToolStripMenuItem
+            // 
+            this.editInZetaToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.editInZetaToolStripMenuItem.Name = "editInZetaToolStripMenuItem";
+            this.editInZetaToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.editInZetaToolStripMenuItem.Text = "Edit in Zeta";
+            this.editInZetaToolStripMenuItem.Click += new System.EventHandler(this.editInZetaToolStripMenuItem_Click);
+            // 
+            // editInTextEditorToolStripMenuItem
+            // 
+            this.editInTextEditorToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.editInTextEditorToolStripMenuItem.Name = "editInTextEditorToolStripMenuItem";
+            this.editInTextEditorToolStripMenuItem.Size = new System.Drawing.Size(184, 22);
+            this.editInTextEditorToolStripMenuItem.Text = "Edit in &Text Editor";
+            this.editInTextEditorToolStripMenuItem.Click += new System.EventHandler(this.editInTextEditorToolStripMenuItem_Click);
             // 
             // browse
             // 
@@ -353,12 +384,15 @@
         private DarkUI.Controls.DarkTextBox search;
         private DarkUI.Controls.DarkTextBox filter;
         private System.Windows.Forms.Timer hoverTimeout;
-        private System.Windows.Forms.ToolStripMenuItem openInToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openInZetaToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem tempBackupToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem restoreFromBackupToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem clearBackupsToolStripMenuItem;
         private System.Windows.Forms.ImageList icons_files;
         private System.Windows.Forms.ImageList icons_tree;
+        private System.Windows.Forms.ToolStripMenuItem createToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem clearToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem restoreFromOriginalToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editInAssemblyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editInZetaToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editInTextEditorToolStripMenuItem;
     }
 }

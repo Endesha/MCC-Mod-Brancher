@@ -255,8 +255,8 @@ namespace MCC_Mod_Brancher
                     if (real.Contains(dir) && treeView1.Nodes[nc].Checked == false) treeView1.Nodes[nc].Nodes[snc].Checked = true;
                 }
                 treeView1.ExpandAll();
-                if (tabControl1.SelectedIndex == 1) status.Text = "Idle";
             }
+            status.Text = "Idle";
             treeLoading = false;
         }
         void branch(string source, string newname, string sourcedir = "")
